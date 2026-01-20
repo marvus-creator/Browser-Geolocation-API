@@ -1,25 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Distance Calculator</title>
+    <title>GeoDistance Calculator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="card">
-        <h2>Distance Calculator</h2>
-        <p>Calculate the distance between you and any place on Earth.</p>
-        
-        <div class="input-group">
-            <input type="text" id="cityInput" placeholder="Enter city, country, or landmark">
-            <button onclick="calculateDistance()">Find Distance</button>
+    <div class="background-animation"></div>
+
+    <div class="app-container">
+        <!-- Left Sidebar: Controls -->
+        <div class="sidebar">
+            <header>
+                <h1>Global Distance</h1>
+                <p>Calculate distance from your location to anywhere</p>
+            </header>
+
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="text" id="locationInput" placeholder="Enter remote location..." autocomplete="off">
+                    <button id="searchBtn" aria-label="Search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path
+                                d="M21.71 20.29l-3.38-3.38A9.94 9.94 0 0 0 20 11a10 10 0 1 0-10 10c2.35 0 4.5-.83 6.22-2.22l3.38 3.38a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.42zM4 11a8 8 0 1 1 8 8 8 8 0 0 1-8-8z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-card highlight-card">
+                    <span class="label">Distance</span>
+                    <div class="value-container">
+                        <span id="distanceValue" class="value">0</span>
+                        <span class="unit">km</span>
+                    </div>
+                </div>
+                <div class="locations-grid">
+                    <div class="info-card">
+                        <div class="icon-label">
+                            <span class="dot-indicator user-dot"></span>
+                            <span class="label">You</span>
+                        </div>
+                        <span id="myLocationText" class="value-text">Locating...</span>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon-label">
+                            <span class="dot-indicator target-dot"></span>
+                            <span class="label">Target</span>
+                        </div>
+                        <span id="targetLocationText" class="value-text">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                <small>Powered by OpenStreetMap & Nominatim</small>
+            </div>
         </div>
 
-        <div id="loader" class="hidden">Processing...</div>
-        <div id="resultArea"></div>
+        <!-- Right Side: Map -->
+        <div id="map"></div>
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Custom JS -->
     <script src="script.js"></script>
 </body>
+
 </html>
