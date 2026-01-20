@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Geolocation Distance Calculator</title>
+</head>
+
+<body>
+    <h1>Distance Calculator</h1>
+
+    <!-- Input for searching a place -->
+    <input type="text" id="placeInput" placeholder="Enter a place (e.g. Kigali, Nairobi)">
+    <button id="getLocation">Get My Location & Distance</button>
+
+    <!-- Status messages -->
+    <p id="status"></p>
+    <p id="placeResult"></p>
+    <p id="distance"></p>
+
+    <script>
+        /*
+        ----------------------------------------------------
+        HAVERSINE FORMULA
+        Calculates distance between two latitude/longitude points
+        ----------------------------------------------------
+        */
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) *
+                Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in KM
+        }
+
+        /*
+        ----------------------------------------------------
+        MAIN FUNCTION
+        1. Get user's current location
+        2. Search for the entered place
+        3. Calculate distance between them
+        ----------------------------------------------------
+        */
+        async function getLocationAndDistance() {
+            const status = document.getElementById("status");
+            const distanceP = document.getElementById("distance");
+            const placeResult = document.getElementById("placeResult");
+            const placeName = document.getElementById("placeInput").value;
+
+            // Validate input
+            if (!placeName) {
+                status.textContent = "Please enter a place name.";
+                return;
+            }
+
+            // Check if browser supports geolocation
+            if (!navigator.geolocation) {
+                status.textContent = "Geolocation is not supported by your browser.";
+                return;
+            }
+
+            status.textContent = "Getting your location...";
+
+            // Get user's current location
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLon = position.coords.longitude;
+
+                    status.textContent = `Your location: ${userLat.toFixed(4)}, ${userLon.toFixed(4)}`;
+
+                    /*
+                    ----------------------------------------------------
+                    FETCH PLACE COORDINATES
+                    Using OpenStreetMap Nominatim API
+                    ----------------------------------------------------
+                    */
+                    try {
+                        const response = await fetch(
+                            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}`
+                        );
+
+                        const data = await response.json();
+
+                        // If place not found
+                        if (data.length === 0) {
+                            placeResult.textContent = "Place not found.";
+                            return;
+                        }
+
+                        // Extract place coordinates
+                        const placeLat = parseFloat(data[0].lat);
+                        const placeLon = parseFloat(data[0].lon);
+                        const displayName = data[0].display_name;
+
+                        placeResult.textContent = `Place found: ${displayName}`;
+
+                        // Calculate distance
+                        const distance = calculateDistance(
+                            userLat,
+                            userLon,
+                            placeLat,
+                            placeLon
+                        );
+
+                        distanceP.textContent = `Distance: ${distance.toFixed(2)} km`;
+
+                    } catch (error) {
+                        status.textContent = "Error fetching place location.";
+                    }
+                },
+                () => {
+                    status.textContent = "Unable to retrieve your location. Please allow location access.";
+                }
+            );
+        }
+
+        // Attach click event to button
+        document
+            .getElementById("getLocation")
+            .addEventListener("click", getLocationAndDistance);
+    </script>
+</body>
+
+</html>
